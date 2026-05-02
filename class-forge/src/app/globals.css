@@ -1,0 +1,84 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+
+/* ===========================================
+   ClassForge グローバルスタイル
+   デザインシステム: ミニマル / 白ベース / Indigo系
+   =========================================== */
+
+/* カスタムテーマ変数 */
+@theme {
+  /* プライマリカラー（Indigo系） */
+  --color-primary-50: #EEF2FF;
+  --color-primary-100: #E0E7FF;
+  --color-primary-200: #C7D2FE;
+  --color-primary-300: #A5B4FC;
+  --color-primary-400: #818CF8;
+  --color-primary-500: #6366F1;
+  --color-primary-600: #4F46E5;
+  --color-primary-700: #4338CA;
+  --color-primary-800: #3730A3;
+  --color-primary-900: #312E81;
+
+  /* サクセス（Emerald） */
+  --color-success-50: #ECFDF5;
+  --color-success-500: #10B981;
+  --color-success-600: #059669;
+
+  /* エラー（Rose） */
+  --color-error-50: #FFF1F2;
+  --color-error-500: #F43F5E;
+  --color-error-600: #E11D48;
+
+  /* 警告（Amber） */
+  --color-warning-50: #FFFBEB;
+  --color-warning-500: #F59E0B;
+
+  /* フォント */
+  --font-sans: "Inter", "Noto Sans JP", system-ui, sans-serif;
+}
+
+/* ベーススタイル */
+body {
+  font-family: var(--font-sans);
+  color: #111827;
+  background-color: #FFFFFF;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* スクロールバー カスタマイズ */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
+
+/* フォーカスリング */
+*:focus-visible {
+  outline: 2px solid #6366F1;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* スムーズスクロール */
+html {
+  scroll-behavior: smooth;
+}
+
+/* 選択テキストの色 */
+::selection {
+  background: #C7D2FE;
+  color: #312E81;
+}

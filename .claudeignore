@@ -1,0 +1,20 @@
+node_modules/
+.next/
+dist/
+build/
+.git/
+.vscode/
+.claude/
+*.log
+*.lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+*.ico
+*.png
+*.jpg
+*.jpeg
+*.svg
+*.pdf
+.env*
+! .env.example

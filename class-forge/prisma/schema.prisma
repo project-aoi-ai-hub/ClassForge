@@ -1,0 +1,200 @@
+// ===========================================
+// ClassForge データベーススキーマ
+// ===========================================
+// Prisma ORM + PostgreSQL (Supabase)
+// MVP対象テーブル: users, courses, sections, lessons, purchases, progress
+// Phase2対象テーブル: coupons, reviews
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// -------------------------------------------
+// ユーザー
+// -------------------------------------------
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime? @map("email_verified")
+  passwordHash  String?   @map("password_hash")
+  image         String?
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // Auth.js 用リレーション
+  accounts Account[]
+  sessions Session[]
+
+  // アプリリレーション
+  purchases Purchase[]
+  progress  Progress[]
+
+  @@map("users")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+// -------------------------------------------
+// Auth.js 用テーブル
+// -------------------------------------------
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// -------------------------------------------
+// 講座
+// -------------------------------------------
+model Course {
+  id           String       @id @default(cuid())
+  title        String
+  slug         String       @unique
+  description  String?      @db.Text
+  thumbnailUrl String?      @map("thumbnail_url")
+  price        Int          @default(0)
+  status       CourseStatus @default(DRAFT)
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  sections  Section[]
+  lessons   Lesson[]
+  purchases Purchase[]
+
+  @@map("courses")
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+}
+
+// -------------------------------------------
+// セクション（講座内の章）
+// -------------------------------------------
+model Section {
+  id        String   @id @default(cuid())
+  courseId   String   @map("course_id")
+  title     String
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons Lesson[]
+
+  @@map("sections")
+}
+
+// -------------------------------------------
+// レッスン
+// -------------------------------------------
+model Lesson {
+  id        String   @id @default(cuid())
+  courseId   String   @map("course_id")
+  sectionId String   @map("section_id")
+  title     String
+  slug      String
+  videoUrl  String?  @map("video_url")
+  content   String?  @db.Text
+  sortOrder Int      @default(0) @map("sort_order")
+  isPreview Boolean  @default(false) @map("is_preview")
+  duration  Int?     // 動画の秒数
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  course   Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  section  Section    @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  progress Progress[]
+
+  @@unique([courseId, slug])
+  @@map("lessons")
+}
+
+// -------------------------------------------
+// 購入履歴
+// -------------------------------------------
+model Purchase {
+  id                    String         @id @default(cuid())
+  userId                String         @map("user_id")
+  courseId               String         @map("course_id")
+  stripePaymentIntentId String?        @map("stripe_payment_intent_id")
+  stripeSessionId       String?        @map("stripe_session_id")
+  amount                Int
+  status                PurchaseStatus @default(PAID)
+  createdAt             DateTime       @default(now()) @map("created_at")
+  updatedAt             DateTime       @updatedAt @map("updated_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@map("purchases")
+}
+
+enum PurchaseStatus {
+  PAID
+  REFUNDED
+}
+
+// -------------------------------------------
+// 視聴進捗
+// -------------------------------------------
+model Progress {
+  id             String   @id @default(cuid())
+  userId         String   @map("user_id")
+  lessonId       String   @map("lesson_id")
+  watchedSeconds Int      @default(0) @map("watched_seconds")
+  isCompleted    Boolean  @default(false) @map("is_completed")
+  lastWatchedAt  DateTime @default(now()) @map("last_watched_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@map("progress")
+}
