@@ -7,6 +7,7 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import VideoPlayer from "@/components/player/VideoPlayer";
 import LessonSidebar from "@/components/player/LessonSidebar";
+import CompleteToggleButton from "@/components/player/CompleteToggleButton";
 
 interface Props {
   params: Promise<{ courseSlug: string; lessonSlug: string }>;
@@ -70,7 +71,13 @@ export default async function LessonPage({ params }: Props) {
 
         {/* レッスン情報 */}
         <div className="px-4 sm:px-6 py-6">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{currentLesson.title}</h1>
+          <div className="flex items-start justify-between gap-4">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{currentLesson.title}</h1>
+            <CompleteToggleButton
+              lessonId={currentLesson.id}
+              initialIsCompleted={currentProgress?.isCompleted ?? false}
+            />
+          </div>
           {currentLesson.content && (
             <div className="mt-4 text-gray-600 leading-relaxed whitespace-pre-wrap">
               {currentLesson.content}

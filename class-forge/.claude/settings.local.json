@@ -5,7 +5,10 @@
       "Bash(Select-Object -ExpandProperty FullName)",
       "PowerShell(tree \"D:\\\\Google\\\\Antigravity\\\\10_ClassForge\\\\ClassForge\\\\class-forge\" -L 3)",
       "PowerShell(Get-ChildItem -Path \"D:\\\\Google\\\\Antigravity\\\\10_ClassForge\\\\ClassForge\\\\class-forge\" -Recurse -Directory | ForEach-Object { $_.FullName })",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(git stash *)",
+      "Bash(npm install *)"
     ]
   }
 }

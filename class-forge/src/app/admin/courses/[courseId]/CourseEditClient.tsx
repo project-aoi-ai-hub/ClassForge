@@ -2,14 +2,32 @@
 
 // ===========================================
 // 講座編集クライアントコンポーネント
-// セクション・レッスン管理を含む
+// セクション・レッスン管理 + ドラッグ&ドロップ並び替え
 // ===========================================
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import ThumbnailUpload from "@/components/admin/ThumbnailUpload";
 import { formatPrice } from "@/lib/utils";
 
 interface Lesson {
@@ -33,6 +51,7 @@ interface Course {
   title: string;
   slug: string;
   description: string | null;
+  thumbnailUrl: string | null;
   price: number;
   status: "DRAFT" | "PUBLISHED";
   sections: Section[];
@@ -42,6 +61,223 @@ interface Props {
   course: Course;
 }
 
+// -------------------------------------------------------
+// ドラッグハンドルアイコン
+// -------------------------------------------------------
+function GripIcon() {
+  return (
+    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+      <circle cx="5.5" cy="3.5" r="1.3" />
+      <circle cx="5.5" cy="8" r="1.3" />
+      <circle cx="5.5" cy="12.5" r="1.3" />
+      <circle cx="10.5" cy="3.5" r="1.3" />
+      <circle cx="10.5" cy="8" r="1.3" />
+      <circle cx="10.5" cy="12.5" r="1.3" />
+    </svg>
+  );
+}
+
+// -------------------------------------------------------
+// SortableSectionItem — useSortable フックをカプセル化
+// -------------------------------------------------------
+interface SortableSectionItemProps {
+  section: Section;
+  sIdx: number;
+  courseId: string;
+  editingSectionId: string | null;
+  editingSectionTitle: string;
+  setEditingSectionId: (id: string | null) => void;
+  setEditingSectionTitle: (title: string) => void;
+  onUpdateSection: (id: string) => void;
+  onDeleteSection: (id: string) => void;
+  addingLessonSectionId: string | null;
+  setAddingLessonSectionId: (id: string | null) => void;
+  newLessonTitle: string;
+  setNewLessonTitle: (title: string) => void;
+  isAddingLesson: boolean;
+  onAddLesson: (e: React.FormEvent, sectionId: string) => void;
+  onDeleteLesson: (lessonId: string) => void;
+}
+
+function SortableSectionItem({
+  section,
+  sIdx,
+  courseId,
+  editingSectionId,
+  editingSectionTitle,
+  setEditingSectionId,
+  setEditingSectionTitle,
+  onUpdateSection,
+  onDeleteSection,
+  addingLessonSectionId,
+  setAddingLessonSectionId,
+  newLessonTitle,
+  setNewLessonTitle,
+  isAddingLesson,
+  onAddLesson,
+  onDeleteLesson,
+}: SortableSectionItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: section.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`bg-white rounded-xl border overflow-hidden ${
+        isDragging
+          ? "border-primary-300 shadow-lg opacity-70 z-10"
+          : "border-gray-100"
+      }`}
+    >
+      {/* セクションヘッダー */}
+      <div className="bg-gray-50 px-4 py-3 flex items-center gap-2">
+        {/* ドラッグハンドル */}
+        <button
+          type="button"
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 shrink-0 p-1 rounded transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+          aria-label="ドラッグして並び替え"
+        >
+          <GripIcon />
+        </button>
+
+        <span className="text-xs font-medium text-gray-400 w-5 shrink-0">
+          {sIdx + 1}
+        </span>
+
+        {editingSectionId === section.id ? (
+          <div className="flex-1 flex items-center gap-2">
+            <input
+              value={editingSectionTitle}
+              onChange={(e) => setEditingSectionTitle(e.target.value)}
+              className="flex-1 px-3 py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              autoFocus
+            />
+            <Button size="sm" variant="primary" onClick={() => onUpdateSection(section.id)}>
+              保存
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => setEditingSectionId(null)}>
+              キャンセル
+            </Button>
+          </div>
+        ) : (
+          <>
+            <span className="flex-1 font-semibold text-gray-900 text-sm">
+              {section.title}
+            </span>
+            <span className="text-xs text-gray-400 mr-2">{section.lessons.length}レッスン</span>
+            <button
+              onClick={() => {
+                setEditingSectionId(section.id);
+                setEditingSectionTitle(section.title);
+              }}
+              className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded transition-colors"
+            >
+              編集
+            </button>
+            <button
+              onClick={() => onDeleteSection(section.id)}
+              className="text-xs text-error-400 hover:text-error-600 px-2 py-1 rounded transition-colors"
+            >
+              削除
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* レッスン一覧 */}
+      <div className="divide-y divide-gray-50">
+        {section.lessons.map((lesson, lIdx) => (
+          <div key={lesson.id} className="flex items-center gap-3 px-5 py-3">
+            <span className="w-6 h-6 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center text-xs font-medium shrink-0">
+              {lIdx + 1}
+            </span>
+            <span className="flex-1 text-sm text-gray-700">{lesson.title}</span>
+            {lesson.isPreview && (
+              <span className="text-xs bg-success-50 text-success-600 px-2 py-0.5 rounded-full font-medium">
+                無料
+              </span>
+            )}
+            {lesson.duration && (
+              <span className="text-xs text-gray-400">
+                {Math.floor(lesson.duration / 60)}分
+              </span>
+            )}
+            <Link
+              href={`/admin/courses/${courseId}/lessons/${lesson.id}`}
+              className="text-xs text-primary-600 hover:text-primary-700 font-medium px-2 py-1 rounded transition-colors"
+            >
+              編集
+            </Link>
+            <button
+              onClick={() => onDeleteLesson(lesson.id)}
+              className="text-xs text-error-400 hover:text-error-600 px-2 py-1 rounded transition-colors"
+            >
+              削除
+            </button>
+          </div>
+        ))}
+
+        {/* レッスン追加フォーム */}
+        {addingLessonSectionId === section.id ? (
+          <form
+            onSubmit={(e) => onAddLesson(e, section.id)}
+            className="flex items-center gap-2 px-5 py-3 bg-primary-50/30"
+          >
+            <input
+              value={newLessonTitle}
+              onChange={(e) => setNewLessonTitle(e.target.value)}
+              placeholder="レッスン名を入力..."
+              className="flex-1 px-3 py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              autoFocus
+            />
+            <Button type="submit" size="sm" variant="primary" isLoading={isAddingLesson}>
+              追加
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={() => {
+                setAddingLessonSectionId(null);
+                setNewLessonTitle("");
+              }}
+            >
+              キャンセル
+            </Button>
+          </form>
+        ) : (
+          <button
+            onClick={() => {
+              setAddingLessonSectionId(section.id);
+              setNewLessonTitle("");
+            }}
+            className="w-full text-left px-5 py-2.5 text-sm text-gray-400 hover:text-primary-600 hover:bg-primary-50/30 transition-colors"
+          >
+            ＋ レッスンを追加
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// -------------------------------------------------------
+// メインコンポーネント
+// -------------------------------------------------------
 export default function CourseEditClient({ course: initialCourse }: Props) {
   const router = useRouter();
   const [, startTransition] = useTransition();
@@ -54,6 +290,15 @@ export default function CourseEditClient({ course: initialCourse }: Props) {
   const [status, setStatus] = useState<"DRAFT" | "PUBLISHED">(initialCourse.status);
   const [isSavingInfo, setIsSavingInfo] = useState(false);
   const [infoMessage, setInfoMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  // セクション一覧（D&D楽観的更新のためローカル管理）
+  const [sections, setSections] = useState<Section[]>(initialCourse.sections);
+  const [reorderError, setReorderError] = useState<string | null>(null);
+
+  // router.refresh() 後にサーバーデータで sections を同期
+  useEffect(() => {
+    setSections(initialCourse.sections);
+  }, [initialCourse]);
 
   // セクション追加フォーム
   const [newSectionTitle, setNewSectionTitle] = useState("");
@@ -70,6 +315,52 @@ export default function CourseEditClient({ course: initialCourse }: Props) {
 
   const refreshPage = () => {
     startTransition(() => router.refresh());
+  };
+
+  // -------------------------------------------------------
+  // D&D センサー・ハンドラー
+  // -------------------------------------------------------
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 4 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    setReorderError(null);
+
+    const prevSections = sections;
+    const oldIndex = sections.findIndex((s) => s.id === active.id);
+    const newIndex = sections.findIndex((s) => s.id === over.id);
+    const reordered = arrayMove(sections, oldIndex, newIndex).map((s, i) => ({
+      ...s,
+      sortOrder: i,
+    }));
+
+    setSections(reordered); // 楽観的更新
+
+    try {
+      const res = await fetch(
+        `/api/admin/courses/${initialCourse.id}/sections/reorder`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sections: reordered.map(({ id, sortOrder }) => ({ id, sortOrder })),
+          }),
+        }
+      );
+      if (!res.ok) throw new Error();
+    } catch {
+      setSections(prevSections); // ロールバック
+      setReorderError("並び替えの保存に失敗しました。もう一度お試しください。");
+    }
   };
 
   // -------------------------------------------------------
@@ -212,6 +503,11 @@ export default function CourseEditClient({ course: initialCourse }: Props) {
             </div>
           )}
 
+          <ThumbnailUpload
+            courseId={initialCourse.id}
+            currentUrl={initialCourse.thumbnailUrl}
+          />
+
           <Input
             label="講座タイトル *"
             value={title}
@@ -293,135 +589,50 @@ export default function CourseEditClient({ course: initialCourse }: Props) {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-gray-900">カリキュラム</h2>
           <span className="text-sm text-gray-500">
-            {initialCourse.sections.length}セクション ·{" "}
-            {initialCourse.sections.reduce((acc, s) => acc + s.lessons.length, 0)}レッスン
+            {sections.length}セクション ·{" "}
+            {sections.reduce((acc, s) => acc + s.lessons.length, 0)}レッスン
           </span>
         </div>
 
+        {reorderError && (
+          <div className="text-sm px-4 py-3 rounded-lg bg-error-50 text-error-600 mb-4">
+            {reorderError}
+          </div>
+        )}
+
         <div className="space-y-4">
-          {initialCourse.sections.map((section, sIdx) => (
-            <div key={section.id} className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-              {/* セクションヘッダー */}
-              <div className="bg-gray-50 px-5 py-3 flex items-center gap-3">
-                <span className="text-xs font-medium text-gray-400 w-6 shrink-0">
-                  {sIdx + 1}
-                </span>
-
-                {editingSectionId === section.id ? (
-                  <div className="flex-1 flex items-center gap-2">
-                    <input
-                      value={editingSectionTitle}
-                      onChange={(e) => setEditingSectionTitle(e.target.value)}
-                      className="flex-1 px-3 py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      autoFocus
-                    />
-                    <Button size="sm" variant="primary" onClick={() => updateSection(section.id)}>
-                      保存
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={() => setEditingSectionId(null)}>
-                      キャンセル
-                    </Button>
-                  </div>
-                ) : (
-                  <>
-                    <span className="flex-1 font-semibold text-gray-900 text-sm">
-                      {section.title}
-                    </span>
-                    <span className="text-xs text-gray-400 mr-2">{section.lessons.length}レッスン</span>
-                    <button
-                      onClick={() => {
-                        setEditingSectionId(section.id);
-                        setEditingSectionTitle(section.title);
-                      }}
-                      className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded transition-colors"
-                    >
-                      編集
-                    </button>
-                    <button
-                      onClick={() => deleteSection(section.id)}
-                      className="text-xs text-error-400 hover:text-error-600 px-2 py-1 rounded transition-colors"
-                    >
-                      削除
-                    </button>
-                  </>
-                )}
-              </div>
-
-              {/* レッスン一覧 */}
-              <div className="divide-y divide-gray-50">
-                {section.lessons.map((lesson, lIdx) => (
-                  <div key={lesson.id} className="flex items-center gap-3 px-5 py-3">
-                    <span className="w-6 h-6 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center text-xs font-medium shrink-0">
-                      {lIdx + 1}
-                    </span>
-                    <span className="flex-1 text-sm text-gray-700">{lesson.title}</span>
-                    {lesson.isPreview && (
-                      <span className="text-xs bg-success-50 text-success-600 px-2 py-0.5 rounded-full font-medium">
-                        無料
-                      </span>
-                    )}
-                    {lesson.duration && (
-                      <span className="text-xs text-gray-400">
-                        {Math.floor(lesson.duration / 60)}分
-                      </span>
-                    )}
-                    <Link
-                      href={`/admin/courses/${initialCourse.id}/lessons/${lesson.id}`}
-                      className="text-xs text-primary-600 hover:text-primary-700 font-medium px-2 py-1 rounded transition-colors"
-                    >
-                      編集
-                    </Link>
-                    <button
-                      onClick={() => deleteLesson(lesson.id)}
-                      className="text-xs text-error-400 hover:text-error-600 px-2 py-1 rounded transition-colors"
-                    >
-                      削除
-                    </button>
-                  </div>
-                ))}
-
-                {/* レッスン追加フォーム */}
-                {addingLessonSectionId === section.id ? (
-                  <form
-                    onSubmit={(e) => addLesson(e, section.id)}
-                    className="flex items-center gap-2 px-5 py-3 bg-primary-50/30"
-                  >
-                    <input
-                      value={newLessonTitle}
-                      onChange={(e) => setNewLessonTitle(e.target.value)}
-                      placeholder="レッスン名を入力..."
-                      className="flex-1 px-3 py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      autoFocus
-                    />
-                    <Button type="submit" size="sm" variant="primary" isLoading={isAddingLesson}>
-                      追加
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => {
-                        setAddingLessonSectionId(null);
-                        setNewLessonTitle("");
-                      }}
-                    >
-                      キャンセル
-                    </Button>
-                  </form>
-                ) : (
-                  <button
-                    onClick={() => {
-                      setAddingLessonSectionId(section.id);
-                      setNewLessonTitle("");
-                    }}
-                    className="w-full text-left px-5 py-2.5 text-sm text-gray-400 hover:text-primary-600 hover:bg-primary-50/30 transition-colors"
-                  >
-                    ＋ レッスンを追加
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={sections.map((s) => s.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {sections.map((section, sIdx) => (
+                <SortableSectionItem
+                  key={section.id}
+                  section={section}
+                  sIdx={sIdx}
+                  courseId={initialCourse.id}
+                  editingSectionId={editingSectionId}
+                  editingSectionTitle={editingSectionTitle}
+                  setEditingSectionId={setEditingSectionId}
+                  setEditingSectionTitle={setEditingSectionTitle}
+                  onUpdateSection={updateSection}
+                  onDeleteSection={deleteSection}
+                  addingLessonSectionId={addingLessonSectionId}
+                  setAddingLessonSectionId={setAddingLessonSectionId}
+                  newLessonTitle={newLessonTitle}
+                  setNewLessonTitle={setNewLessonTitle}
+                  isAddingLesson={isAddingLesson}
+                  onAddLesson={addLesson}
+                  onDeleteLesson={deleteLesson}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
 
           {/* セクション追加フォーム */}
           <form onSubmit={addSection} className="flex gap-2">

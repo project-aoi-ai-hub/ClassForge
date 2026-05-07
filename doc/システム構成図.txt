@@ -1,0 +1,69 @@
+# 画像生成AI用プロンプト (システム構成図ビジュアル化)
+
+このファイルには、ClassForge のシステム構成をビジュアル化するための画像生成AI用プロンプトが記録されています。
+
+---
+
+## 1. アイソメトリック 3D スタイル
+システム全体の構造を立体的かつ精密に表現するスタイルです。プレゼン資料などに最適です。
+
+**Prompt (English):**
+A high-quality isometric 3D infographic showing a modern web system architecture. Central hub is a sleek cloud server icon (Vercel). To the left, a user laptop and smartphone showing a video learning interface. To the right, a database cylinder (Supabase), a credit card icon (Stripe), and an email icon (Resend). In the foreground, a professional workstation representing local AI video production with Python code and video editing icons. All elements are connected by glowing neon indigo data lines. Clean white background, minimalist design, soft shadows, premium tech aesthetic, 8k resolution, indigo and emerald color palette.
+
+**日本語訳:**
+モダンなWebシステムアーキテクチャを示す高品質なアイソメトリック3Dインフォグラフィック。中央には洗練されたクラウドサーバー（Vercel）。左側には動画学習画面が表示されたノートPCとスマホ。右側にはデータベース、決済（Stripe）、メール（Resend）。手前にはPythonコードと動画編集アイコンがあるローカルAI動画制作ワークステーション。すべての要素は光るネオンインディゴのデータラインで繋がっている。クリーンな白背景、ミニマルなデザイン、柔らかな影、プレミアムなテック感、8k解像度。
+
+---
+
+## 2. 近未来・データフロー スタイル
+データの「流れ」や「自動化」のダイナミックさを強調するスタイルです。
+
+**Prompt (English):**
+A futuristic, cinematic visualization of an automated video platform system. A digital network map with glowing nodes representing different functional blocks: User Interface, AI Video Generation Engine, Cloud Database, and Payment Gateway. Particles of light flowing between nodes to show real-time data sync. Dark mode aesthetic with deep blue and purple gradients. Sleek glassmorphism UI elements floating in space. High-tech, sophisticated, cybernetic, Unreal Engine 5 render style.
+
+**日本語訳:**
+自動動画プラットフォームの近未来的でシネマティックな可視化。ユーザーインターフェース、AI動画生成エンジン、クラウドDB、決済ゲートウェイを表す光るノードを持つデジタルネットワークマップ。リアルタイムの同期を示す、ノード間を流れる光の粒子。深みのある青と紫のグラデーションのダークモード。空間に浮遊する洗練されたグラスモフィズム（透過ガラス風）のUI要素。ハイテクで洗練されたサイバネティックなデザイン。
+
+---
+
+## 3. モダン・フラットインフォグラフィック
+Webサイトの解説図として使いやすい、クリーンでフラットなデザインです。
+
+**Prompt (English):**
+A clean, modern flat-design infographic of a software system architecture titled "ClassForge". Centered around a web application flow. Icons for "Next.js Web App", "PostgreSQL Database", "Stripe Payments", and "AI Video Automation". Using a professional color palette of Indigo, Slate, and Emerald. Logical flow arrows connecting each block. Minimalist vector illustration style, high contrast, perfect for a landing page background.
+
+**日本語訳:**
+「ClassForge」というタイトルの、クリーンでモダンなフラットデザイン・インフォグラフィック。Webアプリのフローを中心に配置。「Next.jsアプリ」「PostgreSQL」「Stripe決済」「AI動画自動化」のアイコン。インディゴ、スレート、エメラルドのプロフェッショナルな配色。各ブロックを繋ぐ論理的な矢印。ミニマルなベクターイラストスタイル、高コントラスト、LPの背景に最適。
+
+---
+
+## 4. モダン・フラット案A：プロセスマップ型（日本語表記）
+左から右へ、コンテンツが作られて受講生に届くまでの「流れ」を強調したデザインです。
+
+**Prompt (English):**
+Flat design infographic process map of a video learning platform. Horizontal flow from left to right. Four main icons with Japanese labels: "制作" (Production) with a robot arm icon, "配信" (Distribution) with a cloud icon, "決済" (Payment) with a shield icon, and "学習" (Learning) with a play button icon. The background is clean white with light blue geometric patterns. Each step is connected by a thick indigo arrow. High-quality vector art, professional business style, minimalist, using Japanese characters clearly.
+
+**日本語訳:**
+動画学習プラットフォームのフラットデザイン・プロセスマップ。左から右への水平な流れ。日本語のラベルが付いた4つの主要アイコン：「制作」（ロボットアーム）、「配信」（クラウド）、「決済」（盾）、「学習」（再生ボタン）。背景はクリーンな白に薄いブルーの幾何学模様。各ステップは太いインディゴの矢印で繋がっている。高品質なベクターアート、プロフェッショナルなビジネススタイル、ミニマル、日本語を明確に表示。
+
+---
+
+## 5. モダン・フラット案B：ハブ・スポーク型（日本語表記）
+中央にシステムの本質を置き、周囲に連携サービスを配置した、エコシステムを表現するデザインです。
+
+**Prompt (English):**
+Modern hub-and-spoke style infographic for a web service architecture. In the center, a large circle with the Japanese text "ClassForge システム". Surrounding it are smaller circles connected by lines, each containing an icon and Japanese text: "AI動画生成" (AI Video), "管理画面" (Admin), "受講生ページ" (Student Page), "データベース" (DB), and "決済連携" (Stripe). Soft pastel colors with Indigo accents. Minimalist flat illustration, clean lines, professional presentation style.
+
+**日本語訳:**
+Webサービスアーキテクチャのモダンなハブ・アンド・スポーク型インフォグラフィック。中央には「ClassForge システム」という日本語テキストが入った大きな円。周囲には線で繋がった小さな円があり、それぞれアイコンと日本語テキストを含む：「AI動画生成」「管理画面」「受講生ページ」「データベース」「決済連携」。インディゴのアクセントが入った柔らかなパステルカラー。ミニマルなフラットイラスト、クリーンなライン、プロフェッショナルなプレゼンスタイル。
+
+---
+
+## 6. モダン・フラット案C：UIダッシュボード型（日本語表記）
+実際のアプリ画面のイメージを重ね合わせ、機能性を強調したデザインです。
+
+**Prompt (English):**
+Infographic showing layered UI cards of a web application. The top card shows a video player with the title "動画講義" (Video Lecture). The side card shows a progress bar with text "進捗管理" (Progress). Another card shows account settings with "アカウント設定" (Settings). Behind these cards, an abstract server rack icon is visible. Professional flat design, vibrant indigo and emerald gradients, clean typography using Noto Sans JP style. High-end software landing page graphic.
+
+**日本語訳:**
+WebアプリのUIカードが重なったインフォグラフィック。一番上のカードには「動画講義」というタイトルの動画プレイヤー。サイドカードには「進捗管理」というテキストが入った進捗バー。別のカードには「アカウント設定」の画面。これらのカードの背後には、抽象的なサーバーラックのアイコン。プロフェッショナルなフラットデザイン、鮮やかなインディゴとエメラルドのグラデーション、Noto Sans JPスタイルのクリーンなタイポグラフィ。高級感のあるソフトウェアLP用グラフィック。
