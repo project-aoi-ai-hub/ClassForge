@@ -1,0 +1,274 @@
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>ClassForge 初回環境構築チェックリスト</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      line-height: 1.8;
+      padding: 24px;
+      max-width: 1000px;
+      margin: auto;
+      background: #f7f7f7;
+    }
+
+    h1 {
+      border-bottom: 3px solid #333;
+      padding-bottom: 10px;
+    }
+
+    h2 {
+      margin-top: 40px;
+      border-left: 6px solid #555;
+      padding-left: 12px;
+      background: #eee;
+    }
+
+    h3 {
+      margin-top: 24px;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 12px;
+    }
+
+    li {
+      margin: 8px 0;
+    }
+
+    label {
+      cursor: pointer;
+    }
+
+    input[type="checkbox"] {
+      transform: scale(1.2);
+      margin-right: 10px;
+    }
+
+    .section {
+      background: white;
+      padding: 20px;
+      margin-top: 24px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+  </style>
+</head>
+<body>
+
+<h1>ClassForge 初回環境構築チェックリスト</h1>
+
+<div class="section">
+
+  <h2>1. Ubuntu Server 初期設定</h2>
+
+  <h3>1-1. 基本設定</h3>
+  <ul>
+    <li><label><input type="checkbox">Ubuntu Server 24.04 LTS インストール</label></li>
+    <li><label><input type="checkbox">固定IP設定（DHCP予約）</label></li>
+    <li><label><input type="checkbox">SSH接続確認</label></li>
+    <li><label><input type="checkbox">タイムゾーン設定</label></li>
+    <li><label><input type="checkbox">apt update / upgrade 実施</label></li>
+  </ul>
+
+  <h3>1-2. 基本ツール</h3>
+  <ul>
+    <li><label><input type="checkbox">curl インストール</label></li>
+    <li><label><input type="checkbox">git インストール</label></li>
+    <li><label><input type="checkbox">vim インストール</label></li>
+    <li><label><input type="checkbox">htop インストール</label></li>
+    <li><label><input type="checkbox">tmux インストール</label></li>
+  </ul>
+
+</div>
+
+<div class="section">
+
+  <h2>2. Docker 環境構築</h2>
+
+  <ul>
+    <li><label><input type="checkbox">Docker インストール</label></li>
+    <li><label><input type="checkbox">Docker Compose インストール</label></li>
+    <li><label><input type="checkbox">docker group 設定</label></li>
+    <li><label><input type="checkbox">Docker 自動起動確認</label></li>
+    <li><label><input type="checkbox">hello-world コンテナ動作確認</label></li>
+  </ul>
+
+</div>
+
+<div class="section">
+
+  <h2>3. NAS マウント設定</h2>
+
+  <ul>
+    <li><label><input type="checkbox">NFS or SMB 有効化確認</label></li>
+    <li><label><input type="checkbox">NAS共有フォルダ作成</label></li>
+    <li><label><input type="checkbox">Ubuntu側 mount point 作成</label></li>
+    <li><label><input type="checkbox">fstab 設定</label></li>
+    <li><label><input type="checkbox">自動マウント確認</label></li>
+    <li><label><input type="checkbox">動画フォルダアクセス確認</label></li>
+  </ul>
+
+</div>
+
+<div class="section">
+
+  <h2>4. ClassForge 基本ディレクトリ作成</h2>
+
+  <ul>
+    <li><label><input type="checkbox">/srv/classforge 作成</label></li>
+    <li><label><input type="checkbox">app ディレクトリ作成</label></li>
+    <li><label><input type="checkbox">nginx ディレクトリ作成</label></li>
+    <li><label><input type="checkbox">scripts ディレクトリ作成</label></li>
+    <li><label><input type="checkbox">backups ディレクトリ作成</label></li>
+  </ul>
+
+</div>
+
+<div class="section">
+
+  <h2>5. Docker Compose 基盤構築</h2>
+
+  <ul>
+    <li><label><input type="checkbox">PostgreSQL コンテナ作成</label></li>
+    <li><label><input type="checkbox">Nginx コンテナ作成</label></li>
+    <li><label><input type="checkbox">Redis コンテナ作成（任意）</label></li>
+    <li><label><input type="checkbox">Docker volume 作成</label></li>
+    <li><label><input type="checkbox">docker compose up 実行</label></li>
+    <li><label><input type="checkbox">docker ps 確認</label></li>
+  </ul>
+
+</div>
+
+<div class="section">
+
+  <h2>6. Node.js / Next.js 環境</h2>
+
+  <ul>
+    <li><label><input type="checkbox">Node.js インストール</label></li>
+    <li><label><input type="checkbox">pnpm インストール</label></li>
+    <li><label><input type="checkbox">Next.js プロジェクト作成</label></li>
+    <li><label><input type="checkbox">Tailwind 導入</label></li>
+    <li><label><input type="checkbox">Next.js 起動確認</label></li>
+  </ul>
+
+</div>
+
+<div class="section">
+
+  <h2>7. Prisma / DB 設定</h2>
+
+  <ul>
+    <li><label><input type="checkbox">Prisma インストール</label></li>
+    <li><label><input type="checkbox">Prisma init</label></li>
+    <li><label><input type="checkbox">DATABASE_URL 設定</label></li>
+    <li><label><input type="checkbox">初回 migrate 実行</label></li>
+    <li><label><input type="checkbox">Prisma Studio 確認</label></li>
+  </ul>
+
+</div>
+
+<div class="section">
+
+  <h2>8. Auth.js 認証設定</h2>
+
+  <ul>
+    <li><label><input type="checkbox">Auth.js インストール</label></li>
+    <li><label><input type="checkbox">Google OAuth 作成</label></li>
+    <li><label><input type="checkbox">NEXTAUTH_SECRET 設定</label></li>
+    <li><label><input type="checkbox">Google Login 動作確認</label></li>
+  </ul>
+
+</div>
+
+<div class="section">
+
+  <h2>9. Stripe / Resend</h2>
+
+  <ul>
+    <li><label><input type="checkbox">Stripe アカウント作成</label></li>
+    <li><label><input type="checkbox">Stripe APIキー設定</label></li>
+    <li><label><input type="checkbox">Checkout API 動作確認</label></li>
+    <li><label><input type="checkbox">Resend アカウント作成</label></li>
+    <li><label><input type="checkbox">テストメール送信確認</label></li>
+  </ul>
+
+</div>
+
+<div class="section">
+
+  <h2>10. LMS 基本実装</h2>
+
+  <ul>
+    <li><label><input type="checkbox">Course Model 作成</label></li>
+    <li><label><input type="checkbox">Lesson Model 作成</label></li>
+    <li><label><input type="checkbox">Purchase Model 作成</label></li>
+    <li><label><input type="checkbox">Progress Model 作成</label></li>
+    <li><label><input type="checkbox">seed データ投入</label></li>
+  </ul>
+
+</div>
+
+<div class="section">
+
+  <h2>11. 動画環境</h2>
+
+  <ul>
+    <li><label><input type="checkbox">Vimeo or Bunny アカウント作成</label></li>
+    <li><label><input type="checkbox">動画アップロード確認</label></li>
+    <li><label><input type="checkbox">埋め込み再生確認</label></li>
+    <li><label><input type="checkbox">NAS動画保管確認</label></li>
+  </ul>
+
+</div>
+
+<div class="section">
+
+  <h2>12. 本番準備</h2>
+
+  <ul>
+    <li><label><input type="checkbox">GitHub Repository 作成</label></li>
+    <li><label><input type="checkbox">Cloudflare 設定</label></li>
+    <li><label><input type="checkbox">Vercel 連携</label></li>
+    <li><label><input type="checkbox">ENV 本番登録</label></li>
+    <li><label><input type="checkbox">HTTPS 確認</label></li>
+  </ul>
+
+</div>
+
+<div class="section">
+
+  <h2>13. 監視・保守</h2>
+
+  <ul>
+    <li><label><input type="checkbox">DB Backup Script 作成</label></li>
+    <li><label><input type="checkbox">cron 登録</label></li>
+    <li><label><input type="checkbox">Sentry 導入</label></li>
+    <li><label><input type="checkbox">PostHog 導入</label></li>
+    <li><label><input type="checkbox">UptimeRobot 設定</label></li>
+  </ul>
+
+</div>
+
+<div class="section">
+
+  <h2>14. MVP 完成確認</h2>
+
+  <ul>
+    <li><label><input type="checkbox">会員登録できる</label></li>
+    <li><label><input type="checkbox">ログインできる</label></li>
+    <li><label><input type="checkbox">講座一覧表示</label></li>
+    <li><label><input type="checkbox">動画再生できる</label></li>
+    <li><label><input type="checkbox">Stripe購入できる</label></li>
+    <li><label><input type="checkbox">購入後に視聴可能</label></li>
+    <li><label><input type="checkbox">スマホで正常動作</label></li>
+  </ul>
+
+</div>
+
+</body>
+</html>
+```
